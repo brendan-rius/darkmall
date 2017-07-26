@@ -31,37 +31,6 @@ let getWeb3 = new Promise(function (resolve, reject) {
 
 		}
 
-		results.web3.eth.getTransactionReceiptMined = (txHash, interval = 500) => {
-			const transactionReceiptAsync = (txHash, resolve, reject) => {
-				results.web3.eth.getTransactionReceipt(txHash, (error, receipt) => {
-					if (error) {
-						reject(error);
-					} else {
-						if (receipt == null) {
-							setTimeout(function () {
-								transactionReceiptAsync(txHash, resolve, reject);
-							}, interval);
-						} else {
-							resolve(receipt);
-						}
-					}
-				});
-			};
-
-			if (Array.isArray(txHash)) {
-				var promises = [];
-				txHash.forEach(function (oneTxHash) {
-					promises.push(results.web3.eth.getTransactionReceiptMined(oneTxHash, interval));
-				});
-				return Promise.all(promises);
-			}
-			else {
-				return new Promise(function (resolve, reject) {
-					transactionReceiptAsync(txHash, resolve, reject);
-				});
-			}
-		};
-
 		resolve(results)
 	})
 })

@@ -15,17 +15,13 @@ import {Link, Route, BrowserRouter as Router} from "react-router-dom";
 
 class Store extends React.PureComponent {
 	static propTypes = {
-		name     : PropTypes.string.isRequired,
-		address  : PropTypes.string.isRequired,
-		goToStore: PropTypes.func,
-	}
-
-	static defaultProps = {
-		goToStore: () => null,
+		name   : PropTypes.string.isRequired,
+		address: PropTypes.string.isRequired,
 	}
 
 	render() {
-		return <a onClick={this.props.goToStore()}>{this.props.name}</a>
+		return <Link to={`/s/${this.props.address}`}
+		             className="pure-menu-heading pure-menu-link">{this.props.name}</Link>
 	}
 }
 
@@ -55,6 +51,59 @@ class StoreList extends React.PureComponent {
 }
 
 class Home extends React.PureComponent {
+	static propTypes = {
+		createStore: PropTypes.func,
+		stores     : PropTypes.arrayOf(PropTypes.shape({
+			name   : PropTypes.string,
+			address: PropTypes.string,
+		}))
+	}
+
+	constructor(props) {
+		super(props)
+		this.state = {
+			storeName: '',
+		}
+	}
+
+	render() {
+		return (
+			<div className="pure-g">
+				<div className="pure-u-1-1">
+					<h1>Create a store</h1>
+					<input placeholder="Store name"
+					       onChange={e => this.setState({storeName: e.target.value})}
+					       value={this.state.storeName}/>
+					<button onClick={() => this.props.createStore(this.state.storeName)}
+					        disabled={!this.state.storeName || this.state.storeName.length === 0}>
+						Create!
+					</button>
+					<h1>Available stores</h1>
+					<StoreList stores={this.props.stores}/>
+				</div>
+			</div>
+		);
+	}
+}
+
+class StorePage extends React.PureComponent {
+	static propTypes = {
+		store: PropTypes.shape({
+			name   : PropTypes.string,
+			address: PropTypes.string,
+		})
+	}
+
+	render() {
+		return (
+			<div>
+				<h1>{this.props.store ? this.props.store.name : 'loading'}</h1>
+			</div>
+		)
+	}
+}
+
+export default class App extends React.PureComponent {
 	constructor(props) {
 		super(props)
 
@@ -128,38 +177,15 @@ class Home extends React.PureComponent {
 		})
 	}
 
-	_createStore() {
-		this.state.mallInstance.openStore(this.state.storeName, {
+	_createStore(name) {
+		this.state.mallInstance.openStore(name, {
 			from : this.state.accounts[0],
 			value: this.state.web3.toWei(5, "ether")
-		}).then(txHash => {
-			return this.state.web3.eth.getTransactionReceiptMined(txHash.tx);
-		}).then(x => {
+		}).then(() => {
 			return this._updateStores()
 		})
 	}
 
-	render() {
-		return (
-			<div className="pure-g">
-				<div className="pure-u-1-1">
-					<h1>Create a store</h1>
-					<input placeholder="Store name"
-					       onChange={e => this.setState({storeName: e.target.value})}
-					       value={this.state.storeName}/>
-					<button onClick={() => this._createStore()}
-					        disabled={!this.state.storeName || this.state.storeName.length === 0}>
-						Create!
-					</button>
-					<h1>Available stores</h1>
-					<StoreList stores={this.state.stores}/>
-				</div>
-			</div>
-		);
-	}
-}
-
-export default class App extends React.PureComponent {
 	render() {
 		return (
 			<Router>
@@ -169,7 +195,13 @@ export default class App extends React.PureComponent {
 					</nav>
 
 					<main className="container">
-						<Route exact path="/" component={Home}/>
+						<Route exact path="/"
+						       render={props => <Home stores={this.state.stores}
+						                              createStore={name => this._createStore(name)}/>}
+						/>
+						<Route path="/s/:address"
+						       render={props => <StorePage store={this.state.stores.find(store => store.address === props.match.params.address)}/>}
+						/>
 					</main>
 				</div>
 			</Router>
