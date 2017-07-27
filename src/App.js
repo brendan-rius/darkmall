@@ -88,16 +88,49 @@ class Home extends React.PureComponent {
 
 class StorePage extends React.PureComponent {
 	static propTypes = {
-		store: PropTypes.shape({
-			name   : PropTypes.string,
-			address: PropTypes.string,
-		})
+		store        : PropTypes.shape({
+			name    : PropTypes.string,
+			address : PropTypes.string,
+			products: PropTypes.arrayOf(PropTypes.shape({
+				name : PropTypes.string,
+				price: PropTypes.number,
+			}))
+		}),
+		createProduct: PropTypes.func.isRequired,
+	}
+
+	constructor(props) {
+		super(props)
+		this.state = {
+			productName : '',
+			productPrice: undefined,
+		}
 	}
 
 	render() {
+		if (!this.props.store) return <span>Loading...</span>
 		return (
 			<div>
-				<h1>{this.props.store ? this.props.store.name : 'loading'}</h1>
+				<h1>{this.props.store.name}</h1>
+				<h2>Add product</h2>
+				<input placeholder="Product name"
+				       onChange={e => this.setState({productName: e.target.value})}
+				       value={this.state.productName}/>
+				<input type="number"
+				       placeholder="Product price"
+				       onChange={e => this.setState({productPrice: e.target.value})}
+				       value={this.state.productPrice}/>
+				<button onClick={() => this.props.createProduct(this.state.productName, this.state.productPrice, true)}
+				        disabled={this.state.productName.length === 0 || this.state.productPrice === undefined}>
+					Create!
+				</button>
+				<h2>Products</h2>
+				<ul>
+					{
+						this.props.store.products.map((product, i) =>
+							<li key={i}>{`${product.name} -- ${product.price}`}</li>)
+					}
+				</ul>
 			</div>
 		)
 	}
@@ -160,10 +193,35 @@ export default class App extends React.PureComponent {
 		setTimeout(() => this._updateStores(), 1000)
 	}
 
+	_readStoreProducts(storeInstance) {
+		return storeInstance.getProductCount.call(0).then(productCount => {
+			const promises = []
+			for (let i = 0; i < productCount; i++)
+				promises.push(storeInstance.products.call(i).then(([name, available, price]) => ({
+					name,
+					available,
+					price: price.toNumber(),
+				})))
+			return Promise.all(promises)
+		})
+	}
+
 	_readStoreAt(address) {
 		const storeContract = contract(StoreContract)
 		storeContract.setProvider(this.state.web3.currentProvider)
-		return storeContract.at(address).then(store => store.name.call().then(name => ({name, address})))
+
+		let storeInstance;
+		let storeName;
+
+		return storeContract.at(address).then(store => {
+			storeInstance = store
+			return storeInstance.name.call()
+		}).then(name => {
+			storeName = name;
+			return this._readStoreProducts(storeInstance)
+		}).then(products => {
+			return {instance: storeInstance, name: storeName, address, products}
+		})
 	}
 
 	_updateStores() {
@@ -178,12 +236,16 @@ export default class App extends React.PureComponent {
 	}
 
 	_createStore(name) {
-		this.state.mallInstance.openStore(name, {
+		this.state.mallInstance.openStore.sendTransaction(name, {
 			from : this.state.accounts[0],
 			value: this.state.web3.toWei(5, "ether")
 		}).then(() => {
 			return this._updateStores()
 		})
+	}
+
+	_createProduct(store, name, price, available) {
+		store.instance.addProduct.sendTransaction(name, available, price, {from: this.state.accounts[0]}).then(() => alert('ok'))
 	}
 
 	render() {
@@ -200,7 +262,12 @@ export default class App extends React.PureComponent {
 						                              createStore={name => this._createStore(name)}/>}
 						/>
 						<Route path="/s/:address"
-						       render={props => <StorePage store={this.state.stores.find(store => store.address === props.match.params.address)}/>}
+						       render={props => {
+							       const store = this.state.stores.find(store => store.address === props.match.params.address)
+							       return <StorePage
+								       store={store}
+								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}/>
+						       }}
 						/>
 					</main>
 				</div>
