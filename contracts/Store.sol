@@ -13,8 +13,9 @@ contract Store {
     Product[] public products;
 
     struct Order {
+    address buyer;
     uint productIndex;
-    uint priceAtBuyTIme;
+    uint priceAtBuyTime;
     string buyerMessage;
     }
 
@@ -57,8 +58,12 @@ contract Store {
         return products.length;
     }
 
+    function getOrderCount() public constant returns (uint) {
+        return orders.length;
+    }
+
     function buyProduct(uint productIndex, string message) validProduct(productIndex) payable atExactPrice(products[productIndex].price) {
         var product = products[productIndex];
-        orders.push(Order(productIndex, product.price, message));
+        orders.push(Order(msg.sender, productIndex, product.price, message));
     }
 }

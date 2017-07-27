@@ -95,6 +95,16 @@ class StorePage extends React.PureComponent {
 				id   : PropTypes.number,
 				name : PropTypes.string,
 				price: PropTypes.number,
+			})),
+			orders  : PropTypes.arrayOf(PropTypes.shape({
+				buyer  : PropTypes.string,
+				product: PropTypes.shape({
+					id   : PropTypes.number,
+					name : PropTypes.string,
+					price: PropTypes.number,
+				}),
+				price  : PropTypes.number,
+				message: PropTypes.string,
 			}))
 		}),
 		createProduct: PropTypes.func.isRequired,
@@ -137,6 +147,16 @@ class StorePage extends React.PureComponent {
 						this.props.store.products.map(product =>
 							<li key={product.id}>{`${product.name} -- $${product.price}`}
 								<button onClick={() => this._buyProduct(product)}>Buy</button>
+							</li>)
+					}
+				</ul>
+				<h2>Order book</h2>
+				<ul>
+					{
+						this.props.store.orders.map(order =>
+							<li key={order.id}>
+								{`${order.buyer} bought ${order.product.name} for $${order.product.price}. Message is `}
+								<pre>{order.message}</pre>
 							</li>)
 					}
 				</ul>
@@ -202,8 +222,22 @@ export default class App extends React.PureComponent {
 		setTimeout(() => this._updateStores(), 1000)
 	}
 
+	_readStoreOrders(storeInstance, products) {
+		return storeInstance.getOrderCount.call().then(orderCount => {
+			const promises = []
+			for (let i = 0; i < orderCount; i++)
+				promises.push(storeInstance.orders.call(i).then(([buyer, productIndex, price, message]) => ({
+					buyer,
+					product: products[productIndex],
+					price  : price.toNumber(),
+					message,
+				})))
+			return Promise.all(promises)
+		})
+	}
+
 	_readStoreProducts(storeInstance) {
-		return storeInstance.getProductCount.call(0).then(productCount => {
+		return storeInstance.getProductCount.call().then(productCount => {
 			const promises = []
 			for (let i = 0; i < productCount; i++)
 				promises.push(storeInstance.products.call(i).then(([name, available, price]) => ({
@@ -222,6 +256,7 @@ export default class App extends React.PureComponent {
 
 		let storeInstance;
 		let storeName;
+		let storeProducts;
 
 		return storeContract.at(address).then(store => {
 			storeInstance = store
@@ -230,7 +265,10 @@ export default class App extends React.PureComponent {
 			storeName = name;
 			return this._readStoreProducts(storeInstance)
 		}).then(products => {
-			return {instance: storeInstance, name: storeName, address, products}
+			storeProducts = products
+			return this._readStoreOrders(storeInstance, storeProducts)
+		}).then(orders => {
+			return {instance: storeInstance, name: storeName, address, products: storeProducts, orders}
 		})
 	}
 
