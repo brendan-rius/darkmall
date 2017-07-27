@@ -12,12 +12,34 @@ contract Store {
 
     Product[] public products;
 
+    struct Order {
+    uint productIndex;
+    uint priceAtBuyTIme;
+    string buyerMessage;
+    }
+
+    Order[] public orders;
+
     address public owner;
 
     address mall;
 
     modifier onlyOwner {
         require(msg.sender == owner);
+        _;
+    }
+
+    modifier atExactPrice(uint amount) {
+        require(msg.value >= amount);
+        _;
+        if (msg.value > amount) {
+            msg.sender.transfer(msg.value - amount);
+        }
+    }
+
+    modifier validProduct(uint productIndex) {
+        require(productIndex < products.length);
+        require(products[productIndex].available == true);
         _;
     }
 
@@ -33,5 +55,10 @@ contract Store {
 
     function getProductCount() public constant returns (uint) {
         return products.length;
+    }
+
+    function buyProduct(uint productIndex, string message) validProduct(productIndex) payable atExactPrice(products[productIndex].price) {
+        var product = products[productIndex];
+        orders.push(Order(productIndex, product.price, message));
     }
 }

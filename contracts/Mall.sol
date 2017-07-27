@@ -15,7 +15,7 @@ contract Mall {
         return stores.length;
     }
 
-    modifier atExactSum(uint amount) {
+    modifier atExactPrice(uint amount) {
         require(msg.value >= amount);
         _;
         if (msg.value > amount) {
@@ -27,7 +27,7 @@ contract Mall {
         owner = msg.sender;
     }
 
-    function openStore(string name) payable atExactSum(SHOP_PRICE) returns (Store) {
+    function openStore(string name) payable atExactPrice(SHOP_PRICE) returns (Store) {
         var store = new Store(name, msg.sender, this);
         stores.push(store);
         return store;

@@ -92,11 +92,13 @@ class StorePage extends React.PureComponent {
 			name    : PropTypes.string,
 			address : PropTypes.string,
 			products: PropTypes.arrayOf(PropTypes.shape({
+				id   : PropTypes.number,
 				name : PropTypes.string,
 				price: PropTypes.number,
 			}))
 		}),
 		createProduct: PropTypes.func.isRequired,
+		buyProduct   : PropTypes.func.isRequired,
 	}
 
 	constructor(props) {
@@ -105,6 +107,11 @@ class StorePage extends React.PureComponent {
 			productName : '',
 			productPrice: undefined,
 		}
+	}
+
+	_buyProduct(product) {
+		const message = prompt("Message for the vendor");
+		this.props.buyProduct(product, message);
 	}
 
 	render() {
@@ -127,8 +134,10 @@ class StorePage extends React.PureComponent {
 				<h2>Products</h2>
 				<ul>
 					{
-						this.props.store.products.map((product, i) =>
-							<li key={i}>{`${product.name} -- ${product.price}`}</li>)
+						this.props.store.products.map(product =>
+							<li key={product.id}>{`${product.name} -- $${product.price}`}
+								<button onClick={() => this._buyProduct(product)}>Buy</button>
+							</li>)
 					}
 				</ul>
 			</div>
@@ -198,6 +207,7 @@ export default class App extends React.PureComponent {
 			const promises = []
 			for (let i = 0; i < productCount; i++)
 				promises.push(storeInstance.products.call(i).then(([name, available, price]) => ({
+					id   : i,
 					name,
 					available,
 					price: price.toNumber(),
@@ -248,6 +258,13 @@ export default class App extends React.PureComponent {
 		store.instance.addProduct.sendTransaction(name, available, price, {from: this.state.accounts[0]}).then(() => alert('ok'))
 	}
 
+	_buyProduct(store, product, message) {
+		store.instance.buyProduct.sendTransaction(product.id, message, {
+			from : this.state.accounts[0],
+			value: product.price
+		})
+	}
+
 	render() {
 		return (
 			<Router>
@@ -266,7 +283,8 @@ export default class App extends React.PureComponent {
 							       const store = this.state.stores.find(store => store.address === props.match.params.address)
 							       return <StorePage
 								       store={store}
-								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}/>
+								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}
+								       buyProduct={(product, message) => this._buyProduct(store, product, message)}/>
 						       }}
 						/>
 					</main>
