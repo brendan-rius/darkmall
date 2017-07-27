@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import MallContract from '../build/contracts/Mall.json'
 import StoreContract from '../build/contracts/Store.json'
 import getWeb3 from './utils/getWeb3'
@@ -11,159 +10,8 @@ import './css/pure-min.css'
 import './App.css'
 
 import {Link, Route, BrowserRouter as Router} from "react-router-dom";
-
-
-class Store extends React.PureComponent {
-	static propTypes = {
-		name   : PropTypes.string.isRequired,
-		address: PropTypes.string.isRequired,
-	}
-
-	render() {
-		return <Link to={`/s/${this.props.address}`}
-		             className="pure-menu-heading pure-menu-link">{this.props.name}</Link>
-	}
-}
-
-class StoreList extends React.PureComponent {
-	static propTypes = {
-		stores: PropTypes.arrayOf(PropTypes.shape({
-			name   : PropTypes.string,
-			address: PropTypes.string,
-		}))
-	}
-
-	static defaultProps = {
-		stores: [],
-	}
-
-	render() {
-		return <ul>
-			{
-				this.props.stores.map((store, i) =>
-					<li key={store.address}>
-						<Store name={store.name} address={store.address}/>
-					</li>
-				)
-			}
-		</ul>
-	}
-}
-
-class Home extends React.PureComponent {
-	static propTypes = {
-		createStore: PropTypes.func,
-		stores     : PropTypes.arrayOf(PropTypes.shape({
-			name   : PropTypes.string,
-			address: PropTypes.string,
-		}))
-	}
-
-	constructor(props) {
-		super(props)
-		this.state = {
-			storeName: '',
-		}
-	}
-
-	render() {
-		return (
-			<div className="pure-g">
-				<div className="pure-u-1-1">
-					<h1>Create a store</h1>
-					<input placeholder="Store name"
-					       onChange={e => this.setState({storeName: e.target.value})}
-					       value={this.state.storeName}/>
-					<button onClick={() => this.props.createStore(this.state.storeName)}
-					        disabled={!this.state.storeName || this.state.storeName.length === 0}>
-						Create!
-					</button>
-					<h1>Available stores</h1>
-					<StoreList stores={this.props.stores}/>
-				</div>
-			</div>
-		);
-	}
-}
-
-class StorePage extends React.PureComponent {
-	static propTypes = {
-		store        : PropTypes.shape({
-			name    : PropTypes.string,
-			address : PropTypes.string,
-			products: PropTypes.arrayOf(PropTypes.shape({
-				id   : PropTypes.number,
-				name : PropTypes.string,
-				price: PropTypes.number,
-			})),
-			orders  : PropTypes.arrayOf(PropTypes.shape({
-				buyer  : PropTypes.string,
-				product: PropTypes.shape({
-					id   : PropTypes.number,
-					name : PropTypes.string,
-					price: PropTypes.number,
-				}),
-				price  : PropTypes.number,
-				message: PropTypes.string,
-			}))
-		}),
-		createProduct: PropTypes.func.isRequired,
-		buyProduct   : PropTypes.func.isRequired,
-	}
-
-	constructor(props) {
-		super(props)
-		this.state = {
-			productName : '',
-			productPrice: undefined,
-		}
-	}
-
-	_buyProduct(product) {
-		const message = prompt("Message for the vendor");
-		this.props.buyProduct(product, message);
-	}
-
-	render() {
-		if (!this.props.store) return <span>Loading...</span>
-		return (
-			<div>
-				<h1>{this.props.store.name}</h1>
-				<h2>Add product</h2>
-				<input placeholder="Product name"
-				       onChange={e => this.setState({productName: e.target.value})}
-				       value={this.state.productName}/>
-				<input type="number"
-				       placeholder="Product price"
-				       onChange={e => this.setState({productPrice: e.target.value})}
-				       value={this.state.productPrice}/>
-				<button onClick={() => this.props.createProduct(this.state.productName, this.state.productPrice, true)}
-				        disabled={this.state.productName.length === 0 || this.state.productPrice === undefined}>
-					Create!
-				</button>
-				<h2>Products</h2>
-				<ul>
-					{
-						this.props.store.products.map(product =>
-							<li key={product.id}>{`${product.name} -- $${product.price}`}
-								<button onClick={() => this._buyProduct(product)}>Buy</button>
-							</li>)
-					}
-				</ul>
-				<h2>Order book</h2>
-				<ul>
-					{
-						this.props.store.orders.map(order =>
-							<li key={order.id}>
-								{`${order.buyer} bought ${order.product.name} for $${order.product.price}. Message is `}
-								<pre>{order.message}</pre>
-							</li>)
-					}
-				</ul>
-			</div>
-		)
-	}
-}
+import Home from "./components/Home";
+import StorePage from "./components/Store";
 
 export default class App extends React.PureComponent {
 	constructor(props) {
@@ -227,6 +75,7 @@ export default class App extends React.PureComponent {
 			const promises = []
 			for (let i = 0; i < orderCount; i++)
 				promises.push(storeInstance.orders.call(i).then(([buyer, productIndex, price, message]) => ({
+					id     : i,
 					buyer,
 					product: products[productIndex],
 					price  : price.toNumber(),
