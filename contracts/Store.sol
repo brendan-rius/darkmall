@@ -4,6 +4,8 @@ pragma solidity ^0.4.2;
 contract Store {
     string public name;
 
+    string public publicKey;
+
     struct Product {
     string name;
     bool available;
@@ -44,10 +46,11 @@ contract Store {
         _;
     }
 
-    function Store(string _name, address _owner, address _mall) {
+    function Store(string _name, address _owner, address _mall, string _publicKey) {
         name = _name;
         owner = _owner;
         mall = _mall;
+        publicKey = _publicKey;
     }
 
     function addProduct(string name, bool available, uint price) onlyOwner {

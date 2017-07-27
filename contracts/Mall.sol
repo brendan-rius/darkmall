@@ -27,8 +27,8 @@ contract Mall {
         owner = msg.sender;
     }
 
-    function openStore(string name) payable atExactPrice(SHOP_PRICE) returns (Store) {
-        var store = new Store(name, msg.sender, this);
+    function openStore(string name, string publicKey) payable atExactPrice(SHOP_PRICE) returns (Store) {
+        var store = new Store(name, msg.sender, this, publicKey);
         stores.push(store);
         return store;
     }
