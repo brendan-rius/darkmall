@@ -27,7 +27,8 @@ contract Store {
     uint productIndex;
     uint priceAtBuyTime;
     string buyerMessage;
-    bool hasRated;
+    bool hasBuyerRatedVendor;
+    bool hasVendorRatedBuyer;
     }
 
     Order[] public orders;
@@ -80,7 +81,8 @@ contract Store {
         var product = products[productIndex];
         require(product.available == true);
         mall.deposit.value(product.price / 10)();
-        orders.push(Order(msg.sender, productIndex, product.price, message, false));
+        orders.push(Order(msg.sender, productIndex, product.price, message, false, false));
+        mall.notifyOrderFrom(msg.sender);
     }
 
     function withdraw(address to, uint amount) onlyOwner {
@@ -90,12 +92,20 @@ contract Store {
     function rateOrder(uint orderIndex, uint rating, string comment) validOrder(orderIndex) {
         var order = orders[orderIndex];
         require(order.buyer == msg.sender);
-        require(order.hasRated == false);
+        require(order.hasBuyerRatedVendor == false);
         require(rating <= 10 && rating >= 0);
-        order.hasRated = true;
+        order.hasBuyerRatedVendor = true;
         var product = products[order.productIndex];
         //product.comments.push(comment);
         product.ratingsSum += rating;
         product.nRatings += 1;
+    }
+
+    function rateBuyer(uint orderIndex, uint rating) onlyOwner {
+        var order = orders[orderIndex];
+        require(order.hasVendorRatedBuyer == false);
+        require(rating <= 10 && rating >= 0);
+        order.hasVendorRatedBuyer = true;
+        mall.rateBuyer(order.buyer, rating);
     }
 }
