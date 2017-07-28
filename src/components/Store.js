@@ -29,6 +29,7 @@ export default class Store extends React.PureComponent {
 		createProduct: PropTypes.func.isRequired,
 		buyProduct   : PropTypes.func.isRequired,
 		userAddress  : PropTypes.string,
+		web3         : PropTypes.object,
 	}
 
 	constructor(props) {
@@ -59,10 +60,10 @@ export default class Store extends React.PureComponent {
 				       onChange={e => this.setState({productName: e.target.value})}
 				       value={this.state.productName}/>
 				<input type="number"
-				       placeholder="Product price"
+				       placeholder="Product price (ETH)"
 				       onChange={e => this.setState({productPrice: e.target.value})}
 				       value={this.state.productPrice}/>
-				<button onClick={() => this.props.createProduct(this.state.productName, this.state.productPrice, true)}
+				<button onClick={() => this.props.createProduct(this.state.productName, this.props.web3.toWei(this.state.productPrice, "ether"), true)}
 				        disabled={this.state.productName.length === 0 || this.state.productPrice === undefined}>
 					Create!
 				</button>
@@ -80,7 +81,7 @@ export default class Store extends React.PureComponent {
 					{
 						this.props.store.orders.map(order =>
 							<li key={order.id}>
-								{`${order.buyer} bought ${order.product.name} for $${order.product.price}. Message is `}
+								{`${order.buyer} bought ${order.product.name} for ${this.props.web3.fromWei(order.product.price)} ETH. Message is `}
 								<pre>{order.message}</pre>
 							</li>)
 					}
@@ -101,7 +102,7 @@ export default class Store extends React.PureComponent {
 				<ul>
 					{
 						this.props.store.products.map(product =>
-							<li key={product.id}>{`${product.name} -- $${product.price}`}
+							<li key={product.id}>{`${product.name} - ${this.props.web3.fromWei(product.price)} ETH`}
 								<button onClick={() => this._buyProduct(product)}>Buy</button>
 							</li>)
 					}

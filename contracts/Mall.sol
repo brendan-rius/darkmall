@@ -1,4 +1,4 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.13;
 
 
 import "./Store.sol";
@@ -18,9 +18,11 @@ contract Mall {
     modifier atExactPrice(uint amount) {
         require(msg.value >= amount);
         _;
-        if (msg.value > amount) {
-            msg.sender.transfer(msg.value - amount);
-        }
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
     }
 
     function Mall() {
@@ -31,5 +33,13 @@ contract Mall {
         var store = new Store(name, msg.sender, this, publicKey);
         stores.push(store);
         return store;
+    }
+
+    function deposit() payable {
+
+    }
+
+    function withdraw(address to, uint amount) onlyOwner {
+        to.transfer(amount);
     }
 }

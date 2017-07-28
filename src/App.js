@@ -39,6 +39,7 @@ export default class App extends React.PureComponent {
 
 		this.state = {
 			mallInstance: null,
+			mallBalance : 0,
 			accounts    : [],
 			stores      : [],
 			web3        : null,
@@ -77,14 +78,22 @@ export default class App extends React.PureComponent {
 		const mall = contract(MallContract)
 		mall.setProvider(this.state.web3.currentProvider)
 
+		let mallInstance = null;
+
 		// Get accounts.
 		this.state.web3.eth.getAccounts((error, accounts) => {
 			this.setState({userAddress: accounts[0]})
 			mall.deployed().then(instance => {
+				mallInstance = instance
 				return new Promise(resolve => {
-					this.setState({mallInstance: instance, accounts}, () => resolve())
+					this.setState({mallInstance: mallInstance, accounts}, () => resolve())
 				})
 			}).then(() => {
+				return new Promise(resolve => {
+					this.state.web3.eth.getBalance(mallInstance.address, (_, balance) => resolve(balance))
+				})
+			}).then(balance => {
+				this.setState({mallBalance: this.state.web3.fromWei(balance).toNumber()})
 				this._updateStores()
 			})
 		})
@@ -201,13 +210,15 @@ export default class App extends React.PureComponent {
 					<main className="container">
 						<Route exact path="/"
 						       render={props => <Home stores={this.state.stores}
-						                              createStore={name => this._createStore(name)}/>}
+						                              createStore={name => this._createStore(name)}
+						                              mallBalance={this.state.mallBalance}/>}
 						/>
 						<Route path="/s/:address"
 						       render={props => {
 							       const store = this.state.stores.find(store => store.address === props.match.params.address)
 							       return <Store
 								       store={store}
+								       web3={this.state.web3}
 								       userAddress={this.state.userAddress}
 								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}
 								       buyProduct={(product, message) => this._buyProduct(store, product, message)}/>

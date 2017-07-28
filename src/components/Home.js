@@ -30,6 +30,7 @@ class StoreList extends React.PureComponent {
 
 export default class Home extends React.PureComponent {
 	static propTypes = {
+		mallBalance: PropTypes.number,
 		createStore: PropTypes.func,
 		stores     : PropTypes.arrayOf(PropTypes.shape({
 			name   : PropTypes.string,
@@ -48,6 +49,7 @@ export default class Home extends React.PureComponent {
 		return (
 			<div className="pure-g">
 				<div className="pure-u-1-1">
+					<p>Mall balance is : {this.props.mallBalance}</p>
 					<h1>Create a store</h1>
 					<input placeholder="Store name"
 					       onChange={e => this.setState({storeName: e.target.value})}

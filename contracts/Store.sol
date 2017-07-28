@@ -1,4 +1,7 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.13;
+
+
+import "./Mall.sol";
 
 
 contract Store {
@@ -25,19 +28,16 @@ contract Store {
 
     address public owner;
 
-    address mall;
+    Mall mall;
 
     modifier onlyOwner {
         require(msg.sender == owner);
         _;
     }
 
-    modifier atExactPrice(uint amount) {
+    modifier atMinimumPrice(uint amount) {
         require(msg.value >= amount);
         _;
-        if (msg.value > amount) {
-            msg.sender.transfer(msg.value - amount);
-        }
     }
 
     modifier validProduct(uint productIndex) {
@@ -46,7 +46,7 @@ contract Store {
         _;
     }
 
-    function Store(string _name, address _owner, address _mall, string _publicKey) {
+    function Store(string _name, address _owner, Mall _mall, string _publicKey) {
         name = _name;
         owner = _owner;
         mall = _mall;
@@ -65,8 +65,13 @@ contract Store {
         return orders.length;
     }
 
-    function buyProduct(uint productIndex, string message) validProduct(productIndex) payable atExactPrice(products[productIndex].price) {
+    function buyProduct(uint productIndex, string message) validProduct(productIndex) payable atMinimumPrice(products[productIndex].price) {
         var product = products[productIndex];
+        mall.deposit.value(product.price / 10)();
         orders.push(Order(msg.sender, productIndex, product.price, message));
+    }
+
+    function Withdraw(address to, uint amount) onlyOwner {
+        to.transfer(amount);
     }
 }
