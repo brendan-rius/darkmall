@@ -13,6 +13,11 @@ contract Store {
     string name;
     bool available;
     uint price;
+
+//    string[] comments;
+
+    uint ratingsSum;
+    uint nRatings;
     }
 
     Product[] public products;
@@ -22,6 +27,7 @@ contract Store {
     uint productIndex;
     uint priceAtBuyTime;
     string buyerMessage;
+    bool hasRated;
     }
 
     Order[] public orders;
@@ -42,7 +48,11 @@ contract Store {
 
     modifier validProduct(uint productIndex) {
         require(productIndex < products.length);
-        require(products[productIndex].available == true);
+        _;
+    }
+
+    modifier validOrder(uint orderIndex) {
+        require(orderIndex < orders.length);
         _;
     }
 
@@ -54,7 +64,8 @@ contract Store {
     }
 
     function addProduct(string name, bool available, uint price) onlyOwner {
-        products.push(Product(name, available, price));
+        //string[] comments;
+        products.push(Product({name: name, available: available, price: price, nRatings: 0, ratingsSum: 0}));
     }
 
     function getProductCount() public constant returns (uint) {
@@ -67,11 +78,24 @@ contract Store {
 
     function buyProduct(uint productIndex, string message) validProduct(productIndex) payable atMinimumPrice(products[productIndex].price) {
         var product = products[productIndex];
+        require(product.available == true);
         mall.deposit.value(product.price / 10)();
-        orders.push(Order(msg.sender, productIndex, product.price, message));
+        orders.push(Order(msg.sender, productIndex, product.price, message, false));
     }
 
-    function Withdraw(address to, uint amount) onlyOwner {
+    function withdraw(address to, uint amount) onlyOwner {
         to.transfer(amount);
+    }
+
+    function rateOrder(uint orderIndex, uint rating, string comment) validOrder(orderIndex) {
+        var order = orders[orderIndex];
+        require(order.buyer == msg.sender);
+        require(order.hasRated == false);
+        require(rating <= 10 && rating >= 0);
+        order.hasRated = true;
+        var product = products[order.productIndex];
+        //product.comments.push(comment);
+        product.ratingsSum += rating;
+        product.nRatings += 1;
     }
 }

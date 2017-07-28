@@ -119,13 +119,19 @@ export default class App extends React.PureComponent {
 	_readStoreProducts(storeInstance) {
 		return storeInstance.getProductCount.call().then(productCount => {
 			const promises = []
-			for (let i = 0; i < productCount; i++)
-				promises.push(storeInstance.products.call(i).then(([name, available, price]) => ({
-					id   : i,
-					name,
-					available,
-					price: price.toNumber(),
-				})))
+			for (let i = 0; i < productCount; i++) {
+				const promise = storeInstance.products.call(i)
+					.then(([name, available, price, ratingsSum, nRatings]) => ({
+						id    : i,
+						name,
+						available,
+						rating: ratingsSum / nRatings,
+						nRatings,
+						price : price.toNumber(),
+					}))
+
+				promises.push(promise)
+			}
 			return Promise.all(promises)
 		})
 	}
@@ -189,13 +195,22 @@ export default class App extends React.PureComponent {
 	}
 
 	_createProduct(store, name, price, available) {
-		store.instance.addProduct.sendTransaction(name, available, price, {from: this.state.accounts[0]}).then(() => alert('ok'))
+		store.instance.addProduct.sendTransaction(name, available, price, {
+			from: this.state.accounts[0],
+		})
 	}
 
 	_buyProduct(store, product, message) {
 		store.instance.buyProduct.sendTransaction(product.id, message, {
 			from : this.state.accounts[0],
-			value: product.price
+			value: product.price,
+		})
+	}
+
+	_rateOrder(store, order, rating, comment) {
+		console.log(store, order, rating, comment)
+		store.instance.rateOrder.sendTransaction(order.id, rating, comment, {
+			from: this.state.accounts[0],
 		})
 	}
 
@@ -221,7 +236,8 @@ export default class App extends React.PureComponent {
 								       web3={this.state.web3}
 								       userAddress={this.state.userAddress}
 								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}
-								       buyProduct={(product, message) => this._buyProduct(store, product, message)}/>
+								       buyProduct={(product, message) => this._buyProduct(store, product, message)}
+								       rateOrder={(order, rating, comment) => this._rateOrder(store, order, rating, comment)}/>
 						       }}
 						/>
 					</main>
