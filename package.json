@@ -37,6 +37,9 @@
     "postcss-loader": "1.0.0",
     "promise": "7.1.1",
     "react-dev-utils": "^0.4.2",
+    "reactotron-react-js": "^1.12.0",
+    "reactotron-redux": "^1.12.0",
+    "reactotron-redux-saga": "^1.12.0",
     "recursive-readdir": "2.1.0",
     "strip-ansi": "3.0.1",
     "style-loader": "0.13.1",
@@ -49,11 +52,19 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "bootstrap": "4.0.0-alpha.6",
     "dotenv": "^2.0.0",
     "openpgp": "^2.5.8",
     "react": "16.0.0-beta.1",
     "react-dom": "16.0.0-beta.1",
-    "react-router-dom": "^4.1.2"
+    "react-redux": "^5.0.5",
+    "react-router-dom": "^4.1.2",
+    "react-transition-group": "^1.1.2",
+    "reactstrap": "^4.8.0",
+    "redux": "^3.7.2",
+    "redux-saga": "^0.15.6",
+    "reduxsauce": "^0.6.0",
+    "seamless-immutable": "^7.1.2"
   },
   "scripts": {
     "start": "node scripts/start.js",

@@ -1,18 +1,20 @@
 import React from 'react'
-import MallContract from '../build/contracts/Mall.json'
-import StoreContract from '../build/contracts/Store.json'
-import getWeb3 from './utils/getWeb3'
-import contract from 'truffle-contract'
 
-import './css/oswald.css'
-import './css/open-sans.css'
-import './css/pure-min.css'
 import './App.css'
 
-import {Link, Route, BrowserRouter as Router} from "react-router-dom";
-import Home from "./components/Home";
-import Store from "./components/Store";
 
+import {connect} from "react-redux"
+import {Link, Route, BrowserRouter as Router} from "react-router-dom"
+import Home from "./components/Home"
+import {Nav, Navbar, NavbarBrand, NavItem, NavLink} from "reactstrap"
+import Stores from "./components/Stores"
+import RootActions from "./redux/RootRedux"
+
+import createBrowserHistory from 'history/createBrowserHistory'
+
+const customHistory = createBrowserHistory()
+
+// create our store
 const key = `
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Version: BCPG C# v1.6.1.0
@@ -33,7 +35,7 @@ nEn5kn1mdfqBafbUSeoepVOFFgv6NuQNDdiwS1NJPVRvq5iG+a2dNwfmQN722mdC
 -----END PGP PUBLIC KEY BLOCK-----
 `
 
-export default class App extends React.PureComponent {
+class App extends React.PureComponent {
 	constructor(props) {
 		super(props)
 
@@ -49,140 +51,7 @@ export default class App extends React.PureComponent {
 	}
 
 	componentWillMount() {
-		// Get network provider and web3 instance.
-		// See utils/getWeb3 for more info.
-
-		getWeb3
-			.then(results => {
-				this.setState({
-					web3: results.web3
-				}, () => {
-					// Instantiate contract once web3 provided.
-					this.instantiateContract()
-				})
-
-			})
-			.catch(() => {
-				console.log('Error finding web3.')
-			})
-	}
-
-	instantiateContract() {
-		/*
-		 * SMART CONTRACT EXAMPLE
-		 *
-		 * Normally these functions would be called in the context of a
-		 * state management library, but for convenience I've placed them here.
-		 */
-
-		const mall = contract(MallContract)
-		mall.setProvider(this.state.web3.currentProvider)
-
-		let mallInstance = null;
-
-		// Get accounts.
-		this.state.web3.eth.getAccounts((error, accounts) => {
-			this.setState({userAddress: accounts[0]})
-			mall.deployed().then(instance => {
-				mallInstance = instance
-				return new Promise(resolve => {
-					this.setState({mallInstance: mallInstance, accounts}, () => resolve())
-				})
-			}).then(() => {
-				return new Promise(resolve => {
-					this.state.web3.eth.getBalance(mallInstance.address, (_, balance) => resolve(balance))
-				})
-			}).then(balance => {
-				this.setState({mallBalance: this.state.web3.fromWei(balance).toNumber()})
-				this._updateStores()
-			})
-		})
-
-		setTimeout(() => this._updateStores(), 1000)
-	}
-
-	_readStoreOrders(storeInstance, products) {
-		return storeInstance.getOrderCount.call().then(orderCount => {
-			const promises = []
-			for (let i = 0; i < orderCount; i++)
-				promises.push(storeInstance.orders.call(i).then(([buyer, productIndex, price, message]) => ({
-					id     : i,
-					buyer,
-					product: products[productIndex],
-					price  : price.toNumber(),
-					message,
-				})))
-			return Promise.all(promises)
-		})
-	}
-
-	_readStoreProducts(storeInstance) {
-		return storeInstance.getProductCount.call().then(productCount => {
-			const promises = []
-			for (let i = 0; i < productCount; i++) {
-				const promise = storeInstance.products.call(i)
-					.then(([name, available, price, ratingsSum, nRatings]) => ({
-						id    : i,
-						name,
-						available,
-						rating: ratingsSum / nRatings,
-						nRatings,
-						price : price.toNumber(),
-					}))
-
-				promises.push(promise)
-			}
-			return Promise.all(promises)
-		})
-	}
-
-	_readStoreAt(address) {
-		const storeContract = contract(StoreContract)
-		storeContract.setProvider(this.state.web3.currentProvider)
-
-		let storeInstance;
-		let storeName;
-		let storeProducts;
-		let storeOwner;
-		let storePublicKey;
-
-		return storeContract.at(address).then(store => {
-			storeInstance = store
-			return storeInstance.name.call()
-		}).then(name => {
-			storeName = name
-			return storeInstance.owner.call()
-		}).then(owner => {
-			storeOwner = owner
-			return storeInstance.publicKey.call()
-		}).then(publicKey => {
-			storePublicKey = publicKey
-			return this._readStoreProducts(storeInstance)
-		}).then(products => {
-			storeProducts = products
-			return this._readStoreOrders(storeInstance, storeProducts)
-		}).then(orders => {
-			return {
-				instance : storeInstance,
-				name     : storeName,
-				address,
-				products : storeProducts,
-				owner    : storeOwner,
-				publicKey: storePublicKey,
-				orders
-			}
-		})
-	}
-
-	_updateStores() {
-		return this.state.mallInstance.getStoreCount.call().then(storeCount => {
-			const promises = []
-			for (let i = 0; i < storeCount; i++)
-				promises.push(this.state.mallInstance.stores.call(i).then(address => this._readStoreAt(address)))
-			return Promise.all(promises)
-		}).then(stores => {
-			this.setState({stores})
-		})
+		this.props.startup()
 	}
 
 	_createStore(name) {
@@ -214,35 +83,49 @@ export default class App extends React.PureComponent {
 		})
 	}
 
+	_renderRoutesOrLoading() {
+		if (this.props.isLoading) return <h1>Loading...</h1>
+		else return (
+			<main>
+				<Route exact path="/"
+				       render={props => <Home stores={this.state.stores}
+				                              createStore={name => this._createStore(name)}
+				                              mallBalance={this.state.mallBalance}/>}
+				/>
+				<Route path="/s" component={Stores}/>
+			</main>
+		)
+	}
+
 	render() {
 		return (
-			<Router>
-				<div className="App">
-					<nav className="navbar pure-menu pure-menu-horizontal">
-						<Link to="/" className="pure-menu-heading pure-menu-link">Market</Link>
-					</nav>
+			<Router history={customHistory}>
+				<div>
+					<Navbar toggleable>
+						<NavbarBrand tag={Link} to="/">DarkMall</NavbarBrand>
 
-					<main className="container">
-						<Route exact path="/"
-						       render={props => <Home stores={this.state.stores}
-						                              createStore={name => this._createStore(name)}
-						                              mallBalance={this.state.mallBalance}/>}
-						/>
-						<Route path="/s/:address"
-						       render={props => {
-							       const store = this.state.stores.find(store => store.address === props.match.params.address)
-							       return <Store
-								       store={store}
-								       web3={this.state.web3}
-								       userAddress={this.state.userAddress}
-								       createProduct={(name, price, available) => this._createProduct(store, name, price, available)}
-								       buyProduct={(product, message) => this._buyProduct(store, product, message)}
-								       rateOrder={(order, rating, comment) => this._rateOrder(store, order, rating, comment)}/>
-						       }}
-						/>
-					</main>
+						<Nav className="ml-auto" navbar>
+							<NavItem>
+								<NavLink tag={Link} to="/shops">Browse shops</NavLink>
+							</NavItem>
+						</Nav>
+					</Navbar>
+
+					{this._renderRoutesOrLoading()}
+
 				</div>
 			</Router>
 		)
 	}
 }
+
+const mapStateToProps = state => ({
+	isLoading: state.root.web3Loading,
+})
+
+
+const mapDispatchToProps = dispatch => ({
+	startup: () => dispatch(RootActions.startup())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App)
