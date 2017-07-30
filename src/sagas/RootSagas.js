@@ -1,4 +1,4 @@
-import {cps, put, call, all} from "redux-saga/effects"
+import {cps, put, call, all, select} from "redux-saga/effects"
 import RootActions from '../redux/RootRedux'
 import Web3Service from '../services/Web3Service'
 
@@ -89,9 +89,11 @@ export function * createProduct() {
 }
 
 export function * createStore({name, publicKey}) {
+	const address = yield select(state => state.root.address)
+
 	const txOptions = {
-		from : this.state.accounts[0],
-		value: this.state.web3.toWei(5, "ether")
+		from : address,
+		value: Web3Service.web3.toWei(5, "ether")
 	}
 
 	yield call(Web3Service.mallInstance.openStore.sendTransaction, name, publicKey, txOptions)
@@ -108,9 +110,9 @@ export function * rateOrder() {
 export function * onWindowLoad() {
 	// Checking if Web3 has been injected by the browser (Mist/MetaMask)
 	if (typeof window.web3 !== 'undefined') {
-		yield put(RootActions.setWeb3Loading(false))
 		yield call([Web3Service, Web3Service.setProvider], window.web3.currentProvider)
 		yield put(RootActions.setAddress(Web3Service.accounts[0]))
 		yield call(loadMall)
+		yield put(RootActions.setWeb3Loading(false))
 	}
 }

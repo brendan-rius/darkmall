@@ -4,7 +4,7 @@ import Immutable from 'seamless-immutable'
 const {Types, Creators} = createActions({
 	// User & system actions
 	startup      : null,
-	createStore  : ['name'],
+	createStore  : ['name', 'publicKey'],
 	createProduct: ['store', 'name', 'price', 'available'],
 	buyProduct   : ['store', 'product', 'message'],
 	rateOrder    : ['store', 'order', 'rating', 'comment'],
