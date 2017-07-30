@@ -83,8 +83,11 @@ export function * startup() {
 	yield put(RootActions.setWeb3Loading(true))
 }
 
-export function * createProduct() {
-
+export function * createProduct({store, name, price, available}) {
+	//TODO change
+	store.instance.addProduct.sendTransaction(name, available, price, {
+		from: this.state.accounts[0],
+	})
 }
 
 export function * createStore({name, publicKey}) {
@@ -98,12 +101,20 @@ export function * createStore({name, publicKey}) {
 	yield call(Web3Service.mallInstance.openStore.sendTransaction, name, publicKey, txOptions)
 }
 
-export function * buyProduct() {
-
+export function * buyProduct({store, product, message}) {
+	// TODO change
+	store.instance.buyProduct.sendTransaction(product.id, message, {
+		from : this.state.accounts[0],
+		value: product.price,
+	})
 }
 
-export function * rateOrder() {
-
+export function * rateOrder({store, order, rating, comment}) {
+	//TODO change
+	console.log(store, order, rating, comment)
+	store.instance.rateOrder.sendTransaction(order.id, rating, comment, {
+		from: this.state.accounts[0],
+	})
 }
 
 export function * onWindowLoad() {
