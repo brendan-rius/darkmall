@@ -5,9 +5,9 @@ import './App.css'
 
 import {connect} from "react-redux"
 import {Link, Route, BrowserRouter as Router} from "react-router-dom"
-import Home from "./components/Home"
+import Home from "./containers/Home"
 import {Nav, Navbar, NavbarBrand, NavItem, NavLink} from "reactstrap"
-import Stores from "./components/Stores"
+import Stores from "./containers/Stores"
 import RootActions from "./redux/RootRedux"
 
 import createBrowserHistory from 'history/createBrowserHistory'
@@ -55,12 +55,7 @@ class App extends React.PureComponent {
 	}
 
 	_createStore(name) {
-		this.state.mallInstance.openStore.sendTransaction(name, key, {
-			from : this.state.accounts[0],
-			value: this.state.web3.toWei(5, "ether")
-		}).then(() => {
-			return this._updateStores()
-		})
+
 	}
 
 	_createProduct(store, name, price, available) {
@@ -87,11 +82,7 @@ class App extends React.PureComponent {
 		if (this.props.isLoading) return <h1>Loading...</h1>
 		else return (
 			<main>
-				<Route exact path="/"
-				       render={props => <Home stores={this.state.stores}
-				                              createStore={name => this._createStore(name)}
-				                              mallBalance={this.state.mallBalance}/>}
-				/>
+				<Route exact path="/" component={Home}/>
 				<Route path="/s" component={Stores}/>
 			</main>
 		)
@@ -106,13 +97,12 @@ class App extends React.PureComponent {
 
 						<Nav className="ml-auto" navbar>
 							<NavItem>
-								<NavLink tag={Link} to="/shops">Browse shops</NavLink>
+								<NavLink tag={Link} to="/s/">Browse shops</NavLink>
 							</NavItem>
 						</Nav>
 					</Navbar>
 
 					{this._renderRoutesOrLoading()}
-
 				</div>
 			</Router>
 		)

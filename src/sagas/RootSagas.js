@@ -1,11 +1,6 @@
-import MallContractJSON from '../../build/contracts/Mall.json'
-import StoreContractJSON from '../../build/contracts/Store.json'
-import contract from 'truffle-contract'
-import {cps, put, call, select, all} from "redux-saga/effects"
+import {cps, put, call, all} from "redux-saga/effects"
 import RootActions from '../redux/RootRedux'
-import Web3 from 'web3'
-
-let web3Instance
+import Web3Service from '../services/Web3Service'
 
 export function * readOrderAtIndex(index, storeInstance, products) {
 	const [buyer, productIndex, price, message] = yield call(storeInstance.orders.call, index)
@@ -52,9 +47,7 @@ export function * readProducts(storeInstance) {
 export function * readStoreAtIndex(mallInstance, index) {
 	const address = yield call(mallInstance.stores.call, index)
 
-	const storeContract = yield select(store => store.root.storeContract)
-
-	const instance = yield call(storeContract.at, address)
+	const instance = yield call(Web3Service.storeContract.at, address)
 	const name = yield call(instance.name.call)
 	const owner = yield call(instance.owner.call)
 	const publicKey = yield call(instance.publicKey.call)
@@ -82,37 +75,42 @@ export function * updateStores(mallInstance) {
 }
 
 export function * loadMall() {
-	const mall = yield select(state => state.root.mallContract)
-	const mallInstance = yield call(mall.deployed)
-	const balance = yield cps(web3Instance.eth.getBalance, mallInstance.address)
-	yield put(RootActions.setBalance(web3Instance.fromWei(balance)))
-	yield call(updateStores, mallInstance)
+	const balance = yield cps(Web3Service.web3.eth.getBalance, Web3Service.mallInstance.address)
+	yield put(RootActions.setBalance(Web3Service.web3.fromWei(balance)))
+	yield call(updateStores, Web3Service.mallInstance)
 }
 
 export function * startup() {
 	yield put(RootActions.setWeb3Loading(true))
 }
 
-export function * updateProvider(provider) {
-	const mallContract = contract(MallContractJSON)
-	mallContract.setProvider(provider)
-	yield put(RootActions.setMallContract(mallContract))
+export function * createProduct() {
 
-	const storeContract = contract(StoreContractJSON)
-	storeContract.setProvider(provider)
-	yield put(RootActions.setStoreContract(storeContract))
+}
 
-	const [address,] = yield cps(web3Instance.eth.getAccounts)
-	yield put(RootActions.setAddress(address))
+export function * createStore({name, publicKey}) {
+	const txOptions = {
+		from : this.state.accounts[0],
+		value: this.state.web3.toWei(5, "ether")
+	}
+
+	yield call(Web3Service.mallInstance.openStore.sendTransaction, name, publicKey, txOptions)
+}
+
+export function * buyProduct() {
+
+}
+
+export function * rateOrder() {
 
 }
 
 export function * onWindowLoad() {
 	// Checking if Web3 has been injected by the browser (Mist/MetaMask)
 	if (typeof window.web3 !== 'undefined') {
-		web3Instance = new Web3(window.web3.currentProvider)
 		yield put(RootActions.setWeb3Loading(false))
-		yield call(updateProvider, web3Instance.currentProvider)
+		yield call([Web3Service, Web3Service.setProvider], window.web3.currentProvider)
+		yield put(RootActions.setAddress(Web3Service.accounts[0]))
 		yield call(loadMall)
 	}
 }

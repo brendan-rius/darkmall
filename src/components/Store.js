@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import OpenPGP, {key} from 'openpgp';
+import OpenPGP, {key} from 'openpgp'
+import web3 from 'web3'
 
 export default class Store extends React.PureComponent {
 	static propTypes = {
@@ -30,7 +31,6 @@ export default class Store extends React.PureComponent {
 		buyProduct   : PropTypes.func.isRequired,
 		rateOrder    : PropTypes.func.isRequired,
 		userAddress  : PropTypes.string,
-		web3         : PropTypes.object,
 	}
 
 	constructor(props) {
@@ -43,7 +43,7 @@ export default class Store extends React.PureComponent {
 	}
 
 	_buyProduct(product) {
-		const message = prompt("Message for the vendor");
+		const message = prompt("Message for the vendor")
 
 		const options = {
 			data      : message,
@@ -66,7 +66,7 @@ export default class Store extends React.PureComponent {
 				       onChange={e => this.setState({productPrice: e.target.value})}
 				       value={this.state.productPrice}/>
 				<button
-					onClick={() => this.props.createProduct(this.state.productName, this.props.web3.toWei(this.state.productPrice, "ether"), true)}
+					onClick={() => this.props.createProduct(this.state.productName, web3.toWei(this.state.productPrice, "ether"), true)}
 					disabled={this.state.productName.length === 0 || this.state.productPrice === undefined}>
 					Create!
 				</button>
@@ -90,7 +90,7 @@ export default class Store extends React.PureComponent {
 					{
 						this.props.store.orders.map(order =>
 							<li key={order.id}>
-								{`${order.buyer} bought ${order.product.name} for ${this.props.web3.fromWei(order.product.price)} ETH. Message is `}
+								{`${order.buyer} bought ${order.product.name} for ${web3.fromWei(order.product.price)} ETH. Message is `}
 								<pre>{order.message}</pre>
 								<input type="number" min="0" max="10" step="1"
 								       onChange={e => this.setState({rating: e.target.value})}
@@ -115,7 +115,7 @@ export default class Store extends React.PureComponent {
 				<ul>
 					{
 						this.props.store.products.map(product =>
-							<li key={product.id}>{`${product.name} - ${this.props.web3.fromWei(product.price)} ETH - Rating: ${product.rating} (${product.nRatings})`}
+							<li key={product.id}>{`${product.name} - ${web3.fromWei(product.price)} ETH - Rating: ${product.rating} (${product.nRatings})`}
 								<button onClick={() => this._buyProduct(product)}>Buy</button>
 							</li>)
 					}
