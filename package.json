@@ -54,6 +54,7 @@
   "dependencies": {
     "bootstrap": "4.0.0-alpha.6",
     "dotenv": "^2.0.0",
+    "immutable": "^3.8.1",
     "openpgp": "^2.5.8",
     "react": "16.0.0-beta.1",
     "react-dom": "16.0.0-beta.1",

@@ -55,7 +55,6 @@ export function * readStoreAtIndex(mallInstance, index) {
 	const orders = yield call(readOrders, instance, products)
 
 	return {
-		instance,
 		name,
 		address,
 		products,
