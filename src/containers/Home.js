@@ -22,7 +22,12 @@ class Home extends React.PureComponent {
 	}
 
 	_renderMyStores() {
-		const renderStores = (stores) => <ul>{stores.map((store, i) => <li key={i}>{store.name}</li>)}</ul>
+		const renderStores = (stores) =>
+			<ul>{stores.map((store, i) =>
+				<li key={i}>
+					<Link to={`/s/${store.address}`}>{store.name}</Link>
+				</li>)}
+			</ul>
 		return (
 			<Card>
 				<CardHeader>My stores</CardHeader>
