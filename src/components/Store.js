@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import OpenPGP, {key} from 'openpgp'
 import web3 from 'web3'
+import {Container} from "reactstrap"
 
 export default class Store extends React.PureComponent {
 	static propTypes = {
@@ -106,10 +107,8 @@ export default class Store extends React.PureComponent {
 	render() {
 		if (!this.props.store) return <span>Loading...</span>
 		return (
-			<div>
-				<h1>{this.props.store.name}
-					<small>- by {this.props.store.owner}</small>
-				</h1>
+			<Container>
+				<h1>{this.props.store.name}</h1>
 				{this._renderAddProduct()}
 				<h2>Products</h2>
 				<ul>
@@ -121,7 +120,7 @@ export default class Store extends React.PureComponent {
 					}
 				</ul>
 				{this._renderOrderBook()}
-			</div>
+			</Container>
 		)
 	}
 }
