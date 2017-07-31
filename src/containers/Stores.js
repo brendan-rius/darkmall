@@ -42,7 +42,7 @@ class Stores extends React.PureComponent {
 	render() {
 		return (
 			<div>
-				<Route path="/s" render={props => <StoreList stores={this.props.stores}/> }/>
+				<Route exact path="/s" render={props => <StoreList stores={this.props.stores}/>}/>
 				<Route path="/s/create" render={props => <CreateStore createStore={this.props.createStore}/>}/>
 				<Route path="/s/:address"
 				       render={props => {

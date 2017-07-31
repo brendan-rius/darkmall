@@ -43,7 +43,7 @@ class App extends React.PureComponent {
 		if (this.props.isLoading) return <h1>Loading...</h1>
 		else return (
 			<main>
-				<Route exact path="/" component={Home}/>
+				<Route path="/" component={Home} exact/>
 				<Route path="/s" component={Stores}/>
 			</main>
 		)
@@ -58,7 +58,7 @@ class App extends React.PureComponent {
 
 						<Nav className="ml-auto" navbar>
 							<NavItem>
-								<NavLink tag={Link} to="/s/">Browse shops</NavLink>
+								<NavLink tag={Link} to="/s/">Browse all stores</NavLink>
 							</NavItem>
 						</Nav>
 					</Navbar>
