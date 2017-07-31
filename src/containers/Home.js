@@ -28,14 +28,16 @@ class Home extends React.PureComponent {
 					<Link to={`/s/${store.address}`}>{store.name}</Link>
 				</li>)}
 			</ul>
+
+		const myStores = this.props.stores.filter(store => store.owner === this.props.address)
 		return (
 			<Card>
 				<CardHeader>My stores</CardHeader>
 				<CardBlock>
 					{
-						this.props.stores.length === 0
+						myStores.length === 0
 							? <CardText>You do not own a store</CardText>
-							: renderStores(this.props.stores)
+							: renderStores(myStores)
 					}
 					<Button tag={Link} to="/s/create">Open a store</Button>
 				</CardBlock>
@@ -66,6 +68,7 @@ class Home extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
+	address    : state.root.address,
 	stores     : state.root.stores,
 	mallBalance: state.root.mallBalance,
 })
