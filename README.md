@@ -101,6 +101,6 @@ All credit goes to the designer wants to stay anonymous.
 I strongly discourage deploying this kind of market to the Ethereum blockchain without proper control over what you are doing.
 I am not responsible for what you do.
 
-![Example logos](Shroom2.svg?raw=true "Example logos")
+![Example logos](logos.png?raw=true "Example logos")
 
 
