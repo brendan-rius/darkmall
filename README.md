@@ -86,21 +86,18 @@ Pull requests welcome.
 ## How to become very rich very fast
 
  - Deploy this market with a great frontend stored on IPFS.
- - Create an ICO that gives token holders right to get a portion of your 10% cut with the mall (iIf you are smart, you should be able to raise 30-150M (tell the investors you need to pay for public audit. but do it for real it's important)
-Keep some tokens for yourself)
+ - Create an ICO that gives token holders right to get a portion of your 10% cut with the mall (if you are smart, you should be able to raise 30-150M (tell the investors you need to pay for public audit. but do it for real it's important). Keep some tokens for yourself
  - Get the money out, transform it to Monero for security, then sell it through your offshore company's GDAX account.
- - You become the new Pablo Escobar and improve public health without moving from your couch
- - You spend your life scrade of law enforcement and struggle getting your money out
- - You end up convicted with 2 life-terms in prison, or you hang yourself in a Thai jail cell
+ - Become the new Pablo Escobar and improve public health without moving from your couch
+ - Spend your life scared of law enforcement and struggle getting your money out
+ - End up convicted with 2 life-terms in prison, or you hang yourself in a Thai jail cell
  
 Seriously, don't do that.
 
-If you have the capacity to do it, you would probably be better off doing something like creating the next Facebook.
+If you have the skills to do it, you would probably be better off doing something like trying creating the next Facebook.
 
 I strongly discourage deploying this kind of market to the Ethereum blockchain without proper control over what you are doing.
 
 I am not responsible for what you do.
 
-Logos are free to use. Consider it a gift to the community.
-All credit goes to the designer wants to stay anonymous.
-SVG versions available in repo.
+Logos are free to use. Consider it a gift to the community. All credit goes to the designer wants to stay anonymous. SVG versions available in repo.
