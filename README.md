@@ -1,5 +1,7 @@
 # Free Market (DarkMall)
 
+![Example logos](logos.png?raw=true "Example logos")
+
 Here is a non-comprehensive proof-of-concept of what a **decentralized market** running on the Ethereum blockchain
 could look like. This is for educational purpose only and is purposedly incomplete.
 
@@ -93,14 +95,12 @@ Keep some tokens for yourself)
  
 Seriously, don't do that.
 
-If you do, I do not have anything to do with it obviously.
- 
-Here are two cool logos that could be used for such a project. These are free. Consider it a gift to the community.
-All credit goes to the designer wants to stay anonymous.
+If you have the capacity to do it, you would probably be better off doing something like creating the next Facebook.
 
 I strongly discourage deploying this kind of market to the Ethereum blockchain without proper control over what you are doing.
+
 I am not responsible for what you do.
 
-![Example logos](logos.png?raw=true "Example logos")
-
-
+Logos are free to use. Consider it a gift to the community.
+All credit goes to the designer wants to stay anonymous.
+SVG versions available in repo.
