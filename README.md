@@ -8,7 +8,7 @@ could look like. This is for educational purpose only and is purposedly incomple
 The market
 
  - Would not need (although it is recommended) to use a VPN/TOR as their IP address would only be visible by one or a few supposedly trustworthy Ethereum nodes when they make a trasaction
- - Users would not need to credit their account by depositing cryptocurrencies in the wallet first (so it could not be seized by any third-party in case of an exit scam, or law enforcement seizure)
+ - Users would not need to credit their account by depositing cryptocurrencies in the wallet first (so it cannot be seized by any third-party in case of an exit scam, or law enforcement seizure)
  - Users would not even need an account at all (just an Ether wallet)
  - There is no risk of the market being taken down as law enforcement would have to stop the whole Ethereum network
  - There is no risk of exit scam for the code source is openly available, auditable, and cannot be altered on stop without controlling most of the Ethereum nodes
@@ -77,6 +77,10 @@ Navigate to `localhost:3000` and use Metamask for transactions. You should impor
 The frontend is not ideal and does not implement a lot of features but I can't provide with a full implementation responsibly. Get to work and code a bit you lazy ass.
 Another uglier version with more features is available at commit `c2dbcb8630810395dd2aabf5fee77e0d24ac0053`
 
+## Contribute
+
+Pull requests welcome.
+
 ## How to become very rich very fast
 
  - Deploy this market with a great frontend stored on IPFS.
@@ -94,6 +98,9 @@ If you do, I do not have anything to do with it obviously.
 Here are two cool logos that could be used for such a project. These are free. Consider it a gift to the community.
 All credit goes to the designer wants to stay anonymous.
 
-![Example logos](/Shroom2.svg?raw=true "Example logos")
+I strongly discourage deploying this kind of market to the Ethereum blockchain without proper control over what you are doing.
+I am not responsible for what you do.
+
+![Example logos](./Shroom2.svg?raw=true "Example logos")
 
 
