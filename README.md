@@ -94,7 +94,7 @@ Pull requests welcome.
  - Get the money out, transform it to Monero for security, then sell it through your offshore company's GDAX account.
  - Become the new Pablo Escobar and improve public health without moving from your couch
  - Spend your life scared of law enforcement and struggle getting your money out
- - End up convicted with 2 life-terms in prison, or you hang yourself in a Thai jail cell
+ - End up convicted with 2 life-terms in prison, or hang yourself in a Thai jail cell
  
 Seriously, don't do that.
 
