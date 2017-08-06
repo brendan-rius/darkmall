@@ -3,7 +3,11 @@
 ![Example logos](logos.png?raw=true "Example logos")
 
 Here is a non-comprehensive proof-of-concept of what a **decentralized market** running on the Ethereum blockchain
-could look like. This is for educational purpose only and is purposedly incomplete.
+could look like.
+
+In other words, this could be a Silk Road like market that could not be taken down by authorities, it does not have moderators or administrators, could have a revolutionizing UX (no login/signup, no TOR) and no possibility of exit-scam.
+
+This is for educational purpose only and is purposedly incomplete.
 
 ## About the market
 
