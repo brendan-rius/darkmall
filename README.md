@@ -100,4 +100,4 @@ I strongly discourage deploying this kind of market to the Ethereum blockchain w
 
 I am not responsible for what you do.
 
-Logos are free to use. Consider it a gift to the community. All credit goes to the designer wants to stay anonymous. SVG versions available in repo.
+Logos are free to use. Consider it a gift to the community. All credit goes to the Jule, the original designer. SVG versions available in repo.
